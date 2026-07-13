@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rutina">
+<meta name="theme-color" content="#0E1016">
+<title>Mi Rutina</title>
+<style>
+  :root{
+    --bg:#0E1016; --panel:#171A23; --panel2:#1E2230;
+    --ink:#F2F3F7; --dim:#8B90A0; --line:#262B3A;
+    --push:#FF6B5E; --pull:#3EC8E0; --pierna:#9BE15D; --torso:#B48CFF; --mix:#FFC24B; --rest:#5A6072;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; overscroll-behavior-y:none}
+  body{padding:calc(var(--safe-top) + 10px) 0 calc(var(--safe-bottom) + 24px)}
+
+  /* ---- Tira semanal ---- */
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:6px 14px 14px}
+  .day-chip{border:none;background:var(--panel);border-radius:14px;padding:9px 0 8px;
+    display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--dim);
+    font:600 11px/1 -apple-system,sans-serif;letter-spacing:.06em;cursor:pointer;
+    transition:transform .12s ease, background .12s ease}
+  .day-chip:active{transform:scale(.93)}
+  .day-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--c,var(--rest))}
+  .day-chip.active{background:var(--panel2);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--c,var(--rest))}
+  .day-chip.today .lbl{color:var(--ink)}
+  .day-chip.today::after{content:"";width:14px;height:2px;border-radius:2px;background:var(--c,var(--rest));margin-top:1px}
+
+  /* ---- Cabecera de sesión ---- */
+  header{padding:6px 20px 4px}
+  .eyebrow{font:700 12px/1 -apple-system,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+  h1{font-size:44px;font-weight:800;letter-spacing:-.03em;line-height:1.02;margin-top:4px}
+  .meta{color:var(--dim);font-size:14px;margin-top:6px}
+
+  /* ---- Progreso ---- */
+  .progress-wrap{margin:14px 20px 4px}
+  .bar{height:6px;border-radius:6px;background:var(--panel2);overflow:hidden}
+  .bar i{display:block;height:100%;width:0%;border-radius:6px;background:var(--accent);transition:width .35s cubic-bezier(.2,.8,.2,1)}
+  .bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-top:6px}
+
+  /* ---- Lista de ejercicios ---- */
+  .list{padding:12px 14px 4px;display:flex;flex-direction:column;gap:8px}
+  .ex{display:flex;align-items:center;gap:12px;background:var(--panel);border-radius:16px;
+    padding:14px 14px;border:1px solid transparent;cursor:pointer;transition:opacity .2s, border-color .2s}
+  .ex .check{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);
+    display:grid;place-items:center;transition:background .15s,border-color .15s}
+  .ex .check svg{width:12px;height:12px;stroke:#0E1016;stroke-width:3.2;fill:none;
+    stroke-linecap:round;stroke-linejoin:round;opacity:0;transform:scale(.6);transition:.15s}
+  .ex.done{opacity:.45}
+  .ex.done .check{background:var(--accent);border-color:var(--accent)}
+  .ex.done .check svg{opacity:1;transform:scale(1)}
+  .ex.done .name{text-decoration:line-through}
+  .ex .name{font-size:16px;font-weight:600;letter-spacing:-.01em}
+  .ex .scheme{margin-left:auto;flex:none;font-size:14px;font-weight:700;color:var(--accent);
+    font-variant-numeric:tabular-nums;letter-spacing:.01em}
+
+  /* ---- Tarjetas (cardio / descanso / info) ---- */
+  .card{margin:10px 14px 0;background:var(--panel);border-radius:16px;padding:16px;
+    border-left:3px solid var(--accent)}
+  .card h3{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+  .card p{font-size:14.5px;line-height:1.5;color:var(--ink)}
+  .card p + p{margin-top:8px}
+  .card .soft{color:var(--dim)}
+
+  .rest-hero{padding:34px 20px 8px;text-align:left}
+  .rest-hero h1{font-size:40px}
+
+  /* ---- Pie: reset + secciones fijas ---- */
+  .reset{margin:16px 20px 0;background:none;border:1px solid var(--line);color:var(--dim);
+    border-radius:12px;padding:10px 14px;font:600 13px -apple-system,sans-serif;cursor:pointer;width:calc(100% - 40px)}
+  .reset:active{background:var(--panel)}
+
+  .divider{margin:26px 20px 0;border-top:1px solid var(--line)}
+  .info-section{padding:18px 20px 0}
+  .info-section h2{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+  .pill-row{display:flex;flex-direction:column;gap:8px}
+  .pill{background:var(--panel);border-radius:14px;padding:13px 15px;font-size:14.5px;line-height:1.45}
+  .pill b{font-weight:700}
+  .pill .soft{color:var(--dim)}
+  .goal{background:linear-gradient(135deg,#1B2030,#171A23);border-radius:16px;padding:16px;
+    border:1px solid var(--line)}
+  .goal .big{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .goal .big span{color:var(--mix)}
+  .goal p{font-size:14px;line-height:1.55;color:var(--dim);margin-top:8px}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<nav class="week" id="week"></nav>
+
+<main id="view"></main>
+
+<div class="divider"></div>
+
+<section class="info-section">
+  <h2>Cardio</h2>
+  <div class="pill-row">
+    <div class="pill"><b>20–30 min</b> después de las pesas <span class="soft">(caminata con inclinación)</span></div>
+    <div class="pill">O bien <b>8.000–12.000 pasos</b> al día</div>
+  </div>
+</section>
+
+<section class="info-section">
+  <h2>Suplementos</h2>
+  <div class="pill-row">
+    <div class="pill"><b>Creatina monohidrato</b> — 5 g diarios, todos los días</div>
+    <div class="pill"><b>Proteína en polvo</b> — solo si no llegas con la comida</div>
+    <div class="pill"><b>Cafeína</b> — antes de entrenar, si la toleras</div>
+  </div>
+</section>
+
+<section class="info-section">
+  <h2>Objetivo</h2>
+  <div class="goal">
+    <div class="big">−0,5 a −0,75 kg <span>/ semana</span></div>
+    <p>En 4–6 meses: rango de <b style="color:var(--ink)">80–82 kg</b> con más definición y manteniendo músculo.</p>
+    <p>No te obsesiones con la báscula: foto cada 2 semanas, mide la cintura y apunta tus pesos. Si la cintura baja y sigues progresando en el gym, vas bien aunque el peso baje despacio.</p>
+  </div>
+</section>
+
+<script>
+const PLAN = {
+  1:{name:"Push", color:"var(--push)", cardio:"20 min caminando con inclinación", ex:[
+    ["Press banca","4×6-8"],["Press inclinado mancuernas","3×8-10"],["Press militar","4×6-8"],
+    ["Elevaciones laterales","4×12-15"],["Aperturas en polea","3×12-15"],["Tríceps cuerda","3×12"],
+    ["Extensión sobre la cabeza","3×12"]]},
+  2:{name:"Pull", color:"var(--pull)", cardio:"20 min", ex:[
+    ["Dominadas o jalón","4×8"],["Remo con barra","4×8"],["Remo en máquina","3×10"],
+    ["Face pull","3×15"],["Curl barra","3×10"],["Curl martillo","3×12"]]},
+  3:{name:"Pierna", color:"var(--pierna)", cardio:null, ex:[
+    ["Sentadilla","4×6-8"],["Peso muerto rumano","4×8"],["Prensa","3×10"],
+    ["Curl femoral","3×12"],["Extensión de cuádriceps","3×12"],["Gemelos","4×15"],["Abdominales","4 series"]]},
+  4:{name:"Torso", color:"var(--torso)", cardio:"20 min", ex:[
+    ["Press inclinado barra","3×8"],["Jalón al pecho","3×8"],["Press plano mancuernas","3×10"],
+    ["Remo sentado","3×10"],["Elevaciones laterales","3×15"],["Pájaros","3×15"],
+    ["Curl bíceps","3×12"],["Tríceps cuerda","3×12"]]},
+  5:{name:"Pierna + Brazos", color:"var(--mix)", cardio:"20–30 min después de las pesas", ex:[
+    ["Peso muerto","3×5"],["Sentadilla búlgara","3×10"],["Hip thrust","3×10"],
+    ["Curl femoral","3×12"],["Gemelos","4×15"],["Curl barra EZ","3×10"],
+    ["Curl martillo","3×12"],["Press francés","3×10"],["Tríceps polea","3×12"]]},
+  6:{name:"Descanso", color:"var(--rest)", rest:true},
+  0:{name:"Descanso", color:"var(--rest)", rest:true},
+};
+const LABELS=["D","L","M","X","J","V","S"];
+const DAYNAMES=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+const today = new Date().getDay();
+let selected = today;
+const done = {}; // estado en memoria: {dia: Set(indices)}
+
+function buildWeek(){
+  const w = document.getElementById("week"); w.innerHTML="";
+  // Semana empezando en lunes: 1..6, 0
+  [1,2,3,4,5,6,0].forEach(d=>{
+    const b=document.createElement("button");
+    b.className="day-chip"+(d===selected?" active":"")+(d===today?" today":"");
+    b.style.setProperty("--c",PLAN[d].color);
+    b.innerHTML=`<span class="lbl">${LABELS[d]}</span><span class="dot"></span>`;
+    b.onclick=()=>{selected=d;render()};
+    w.appendChild(b);
+  });
+}
+
+function render(){
+  buildWeek();
+  const p=PLAN[selected], v=document.getElementById("view");
+  document.body.style.setProperty("--accent",p.color);
+
+  if(p.rest){
+    v.innerHTML=`
+      <div class="rest-hero">
+        <div class="eyebrow" style="color:${p.color}">${DAYNAMES[selected]}</div>
+        <h1>Descanso</h1>
+        <p class="meta">Recuperar también es entrenar.</p>
+      </div>
+      <div class="card" style="--accent:${p.color};border-left-color:${p.color}">
+        <h3 style="color:${p.color}">Hoy toca</h3>
+        <p>Caminar <b>8.000–12.000 pasos</b>, comer bien y dormir 7–8 h.</p>
+        <p class="soft">Buen día para la foto de progreso o medir la cintura (cada 2 semanas).</p>
+      </div>`;
+    return;
+  }
+
+  if(!done[selected]) done[selected]=new Set();
+  const dset=done[selected];
+  const total=p.ex.length, count=dset.size;
+
+  v.innerHTML=`
+    <header>
+      <div class="eyebrow">${DAYNAMES[selected]}${selected===today?" · hoy":""}</div>
+      <h1>${p.name}</h1>
+    </header>
+    <div class="progress-wrap">
+      <div class="bar"><i style="width:${(count/total)*100}%"></i></div>
+      <div class="bar-label"><span>${count} de ${total} ejercicios</span><span>${count===total?"¡Sesión completada! 💪":""}</span></div>
+    </div>
+    <div class="list">${p.ex.map((e,i)=>`
+      <div class="ex${dset.has(i)?" done":""}" data-i="${i}">
+        <span class="check"><svg viewBox="0 0 16 16"><path d="M2.5 8.5l3.5 3.5 7-8"/></svg></span>
+        <span class="name">${e[0]}</span>
+        <span class="scheme">${e[1]}</span>
+      </div>`).join("")}
+    </div>
+    ${p.cardio?`<div class="card"><h3>Cardio</h3><p>${p.cardio}</p></div>`:""}
+    <button class="reset">Reiniciar sesión</button>`;
+
+  v.querySelectorAll(".ex").forEach(el=>{
+    el.onclick=()=>{
+      const i=+el.dataset.i;
+      dset.has(i)?dset.delete(i):dset.add(i);
+      render();
+    };
+  });
+  v.querySelector(".reset").onclick=()=>{done[selected]=new Set();render()};
+}
+
+render();
+</script>
+</body>
+</html>
